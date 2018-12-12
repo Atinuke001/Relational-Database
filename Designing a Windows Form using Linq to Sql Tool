@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp1
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+            
+        }
+        DataClasses1DataContext db;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            db = new DataClasses1DataContext();
+            dataGridView1.DataSource = db.Customers;
+
+
+
+            
+
+
+        }
+        
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+            db = new DataClasses1DataContext();
+            Customer newcustomer = new Customer();
+           newcustomer.CustomerName = textBox1.Text;
+            newcustomer.CustomerNumber = textBox2.Text;
+            //newcustomer.CustomerStatus = textBox3.Text;
+            db.Customers.InsertOnSubmit(newcustomer);
+            db.SubmitChanges();
+            dataGridView1.DataSource = db.Customers;
+
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            db = new DataClasses1DataContext();
+            int pId = Convert.ToInt32(dataGridView1.CurrentRow.Cells[0].Value.ToString());
+            var query = db.Customers.Where(w => w.CustomerId == pId).FirstOrDefault();
+            query.CustomerName = textBox1.Text;
+            query.CustomerNumber = textBox2.Text;
+            db.SubmitChanges();
+            dataGridView1.DataSource = db.Customers;
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            db = new DataClasses1DataContext();
+            int pId = Convert.ToInt32(dataGridView1.CurrentRow.Cells[0].Value.ToString());
+            var query = db.Customers.Where(w => w.CustomerId == pId).FirstOrDefault();
+            db.Customers.DeleteOnSubmit(query);
+            db.SubmitChanges();
+            dataGridView1.DataSource = db.Customers;
+
+
+        }
+
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            textBox1.Text = dataGridView1.CurrentRow.Cells[1].Value.ToString();
+            textBox2.Text = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+        }
+    }
+}
