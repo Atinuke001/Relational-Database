@@ -1,0 +1,82 @@
+-- ================================================
+-- Template generated from Template Explorer using:
+-- Create Trigger (New Menu).SQL
+--
+-- Use the Specify Values for Template Parameters 
+-- command (Ctrl-Shift-M) to fill in the parameter 
+-- values below.
+--
+-- See additional Create Trigger templates for more
+-- examples of different Trigger statements.
+--
+-- This block of comments will not be included in
+-- the definition of the function.
+-- ================================================
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	This trigger fires on update when the column ApplicationStatus
+--				becomes = 2
+-- =============================================
+ALTER TRIGGER dbo.trg_AllocateStudentNumber 
+   ON  dbo.Student 
+   AFTER UPDATE --the trigger fires on ALL updates for this table, 
+   --regardless of the column
+AS 
+BEGIN
+	DECLARE @currentApplicationStatus int;
+	DECLARE @currentCohortYear int;
+	DECLARE @lastSequenceNumber int;
+	DECLARE @strSequenceNumber nvarchar(3);
+	DECLARE @currentEmail nvarchar(50);
+
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+
+	IF UPDATE(ApplicationStatus) -- Check which column is updated
+	BEGIN
+		
+		SET @currentApplicationStatus = (SELECT ApplicationStatus FROM inserted);
+		
+		IF @currentApplicationStatus = 2
+		BEGIN
+			
+			set @currentCohortYear = (Select CohortYear from inserted);
+			--now we need the last sequence number
+
+			--student numbers look like 2019003
+			set @lastSequenceNumber = (select MAX(convert(int, RIGHT(COALESCE(StudentNumber,0),3))) 
+										from dbo.Student);
+			set @currentEmail = (select email from inserted);
+
+			SET @lastSequenceNumber = @lastSequenceNumber + 1
+			SET @strSequenceNumber = FORMAT(@lastSequenceNumber, '00#');
+
+			BEGIN TRANSACTION;
+
+			BEGIN TRY
+				UPDATE dbo.Student
+				SET StudentNumber = convert(nvarchar,@currentCohortYear) + @strSequenceNumber
+				WHERE email = @currentEmail;
+
+				COMMIT;
+			END TRY
+			BEGIN CATCH
+
+				ROLLBACK;
+			END CATCH;
+
+		END;
+		
+
+	END;
+	
+
+END;
+GO
