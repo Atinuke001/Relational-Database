@@ -1,0 +1,196 @@
+/*
+	Extract all customer id, names and their postal city NAME
+*/
+
+SELECT
+		Cu.CustomerID,
+		Cu.CustomerName,
+		Ci.CityName
+FROM
+		Sales.Customers AS Cu,
+		[Application].Cities AS Ci
+WHERE
+		Cu.PostalCityID = Ci.CityID ;
+
+
+SELECT
+		Cu.CustomerID,
+		Cu.CustomerName,
+		Ci.CityName
+FROM
+		Sales.Customers as Cu INNER JOIN
+		[Application].Cities AS Ci 
+		ON (Cu.PostalCityID = Ci.CityID) ;
+    
+    creating a subsquery
+    
+    SELECT
+		Cu.CustomerID,
+		Cu.CustomerName,
+		(
+			SELECT	SUM(il.Quantity * il.UnitPrice)
+			FROM	Sales.Invoices as i,
+					Sales.InvoiceLines as il
+			WHERE
+					cu.CustomerID = i.CustomerID
+					AND il.InvoiceID = i.InvoiceID
+					AND YEAR(i.InvoiceDate) = 2014
+		) as Sales2014,
+		(
+			SELECT	SUM(il.Quantity * il.UnitPrice)
+			FROM	Sales.Invoices as i,
+					Sales.InvoiceLines as il
+			WHERE
+					cu.CustomerID = i.CustomerID
+					AND il.InvoiceID = i.InvoiceID
+					AND YEAR(i.InvoiceDate) = 2015
+		) as Sales2015,
+		(
+			SELECT	SUM(il.Quantity * il.UnitPrice)
+			FROM	Sales.Invoices as i,
+					Sales.InvoiceLines as il
+			WHERE
+					cu.CustomerID = i.CustomerID
+					AND il.InvoiceID = i.InvoiceID
+					AND YEAR(i.InvoiceDate) = 2016
+		) as Sales2016,
+		(
+			SELECT	SUM(il.Quantity * il.UnitPrice)
+			FROM	Sales.Invoices as i,
+					Sales.InvoiceLines as il
+			WHERE
+					cu.CustomerID = i.CustomerID
+					AND il.InvoiceID = i.InvoiceID
+					AND YEAR(i.InvoiceDate) between 2014 and 2016
+		) as TotalSales,
+		(
+			SELECT	SUM(il.Quantity * il.UnitPrice) as totals
+			FROM	Sales.Invoices as i,
+					Sales.InvoiceLines as il
+			WHERE
+					cu.CustomerID = i.CustomerID
+					AND il.InvoiceID = i.InvoiceID
+					AND YEAR(i.InvoiceDate) between 2014 and 2016
+		)/3 as SimplerAvg,
+		(
+			SELECT AVG(t.sumSales)
+			FROM
+				(
+					SELECT SUM(il.Quantity * il.UnitPrice) as sumSales
+					FROM	Sales.Invoices as i,
+							Sales.InvoiceLines as il
+					WHERE
+							cu.CustomerID = i.CustomerID
+							AND il.InvoiceID = i.InvoiceID
+							AND YEAR(i.InvoiceDate) between 2014 and 2016
+					GROUP BY YEAR(i.InvoiceDate)
+				) as t
+		) as AvgSales
+FROM
+	Sales.Customers as Cu
+  
+  -- Compute the turnover by customer on the whole period of time
+-- CustomerId, CustomerName, SalesTotal
+SELECT
+		C.CustomerID, C.CustomerName
+		, SUM(il.Quantity * il.UnitPrice) as SalesTotal
+FROM
+	Sales.Invoices as i,
+	Sales.InvoiceLines as il,
+	Sales.Customers as c
+WHERE
+	i.InvoiceID = il.InvoiceID
+	and i.CustomerID = c.CustomerID
+
+GROUP BY C.CustomerId, C.CustomerName
+ORDER BY SalesTotal DESC, C.CustomerName;
+
+-- Compute the turnover by customer for 2014, 2015 and 2016 in columns
+-- CustomerId, CustomerName, Sales2014, Sales2015, Sales2016
+SELECT	temp.CustomerID, temp.CustomerName,
+		SUM(temp.Sales2014) as Sales2014,
+		SUM(temp.Sales2015) as Sales2015,
+		SUM(temp.Sales2016) as Sales2016,
+		SUM(Sales2014+Sales2015+Sales2016) as TotalSales,
+		AVG(Sales2014+Sales2015+Sales2016) as AvgSales
+FROM
+(
+	(
+		SELECT
+				C.CustomerID, C.CustomerName,
+				SUM(il.Quantity * il.UnitPrice) as Sales2014,
+				0 as Sales2015,
+				0 as Sales2016
+		FROM
+			Sales.Invoices as i,
+			Sales.InvoiceLines as il,
+			Sales.Customers as c
+		WHERE
+			i.InvoiceID = il.InvoiceID
+			and i.CustomerID = c.CustomerID
+			and year(i.Invoicedate) = 2014
+
+		GROUP BY C.CustomerId, C.CustomerName
+		--ORDER BY Sales2014 DESC, C.CustomerName
+	)
+	UNION
+	(
+		SELECT
+			C.CustomerID, C.CustomerName,
+			0 as Sales2014,
+			SUM(il.Quantity * il.UnitPrice) as Sales2015,
+			0 as Sales2016
+		FROM
+			Sales.Invoices as i,
+			Sales.InvoiceLines as il,
+			Sales.Customers as c
+		WHERE
+			i.InvoiceID = il.InvoiceID
+			and i.CustomerID = c.CustomerID
+			and year(i.Invoicedate) = 2015
+
+		GROUP BY C.CustomerId, C.CustomerName
+		--ORDER BY Sales2014 DESC, C.CustomerName
+	)
+	UNION
+	(
+		SELECT
+			C.CustomerID, C.CustomerName,
+			0 as Sales2014,
+			0 as Sales2015,
+			SUM(il.Quantity * il.UnitPrice) as Sales2016
+		FROM
+			Sales.Invoices as i,
+			Sales.InvoiceLines as il,
+			Sales.Customers as c
+		WHERE
+			i.InvoiceID = il.InvoiceID
+			and i.CustomerID = c.CustomerID
+			and year(i.Invoicedate) = 2016
+
+		GROUP BY C.CustomerId, C.CustomerName
+		--ORDER BY Sales2014 DESC, C.CustomerName
+	)
+)as temp
+GROUP BY temp.CustomerID, temp.CustomerName
+ORDER BY AvgSales desc, temp.CustomerName
+
+Divison Query
+select *
+from dbo.Customer as c
+where not exists
+(
+	select *
+	from dbo.Product as p
+	where 
+	p.ProductName like 'Laptop%' and
+	not exists
+	(
+		select *
+		from dbo.Purchase as pu
+		where pu.CustomerId = c.CustomerId
+		and pu.ProductId = p.ProductId
+		-- extra restriction: more than 1 product purchased
+		and pu.Qty > 1
+	)
+)
