@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MyFirstORM
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            LinqToSQLJoin();
+
+            Console.ReadLine();
+
+        }
+
+        static void LinqToSQLJoin()
+        {
+            PlayGroundDataContext orm = new PlayGroundDataContext();
+
+
+            var custPurchase = from customers in orm.Customers
+                              join purchases in orm.Purchases on customers.CustomerId equals purchases.CustomerId
+                              join products in orm.Products on purchases.ProductId equals products.ProductId
+                              select new
+                              {
+                                  customers.CustomerId,
+                                  customers.CustomerName,
+                                  products.ProductId,
+                                  products.ProductName,
+                                  purchases.Qty
+                              };
+            foreach(var row in custPurchase)
+            {
+                Console.WriteLine(row.CustomerName);
+            }
+
+            Product newProd = new Product()
+            {
+                ProductId = 100,
+                ProductName = "New Product from LINQ",
+                
+
+            };
+
+            orm.Products.InsertOnSubmit(newProd);
+            orm.SubmitChanges();
+
+
+      
+        }
+
+        void firstORMcall()
+        {
+            PlayGroundDataContext orm = new PlayGroundDataContext();
+
+            foreach (var row in orm.Customers)
+            {
+                Console.WriteLine(
+                    $" CustId: { row.CustomerId} \t Name: {row.CustomerName}\t CustNumber: {row.CustomerNumber}");
+
+
+
+            }
+            orm.SubmitChanges();
+
+            Console.ReadLine();
+
+        }
+    }
+}
+
+
