@@ -1,0 +1,381 @@
+swagger: "2.0"
+info:
+  description: Demo swagger file to illustrate combined App / Use Case & Service Capabilities
+  version: "1.0.3"
+  title: Swagger REST Demo BJB
+consumes:
+  - application/json
+produces:
+  - application/json
+
+basePath: /api
+
+# Paths supported by the server application
+paths:
+  /people:
+    get:
+      operationId: people.read_all
+      tags:
+        - People
+      summary: Read the entire set of people, sorted by last name
+      description: Read the entire set of people, sorted by last name
+      responses:
+        200:
+          description: Successfully read people set operation
+          schema:
+            type: array
+            items:
+              properties:
+                person_id:
+                  type: integer
+                  description: Id of the person
+                fname:
+                  type: string
+                  description: First name of the person
+                lname:
+                  type: string
+                  description: Last name of the person
+                timestamp:
+                  type: string
+                  description: Create/Update timestamp of the person
+                notes:
+                  type: array
+                  items:
+                    properties:
+                      person_id:
+                        type: integer
+                        description: Id of person this person is associated with
+                      note_id:
+                        type: integer
+                        description: Id of this Investment Idea
+                      content:
+                        type: string
+                        description: content of this Investment Idea
+                      timestamp:
+                        type: string
+                        description: Create/Update timestamp of this Investment Idea
+
+    post:
+      operationId: people.create
+      tags:
+        - People
+      summary: Create a person
+      description: Create a new person
+      parameters:
+        - name: person
+          in: body
+          description: Person to create
+          required: True
+          schema:
+            type: object
+            properties:
+              fname:
+                type: string
+                description: First name of person to create
+              lname:
+                type: string
+                description: Last name of person to create
+      responses:
+        201:
+          description: Successfully created person
+          schema:
+            properties:
+              person_id:
+                type: integer
+                description: Id of the person
+              fname:
+                type: string
+                description: First name of the person
+              lname:
+                type: string
+                description: Last name of the person
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the person record
+
+  /people/{person_id}:
+    get:
+      operationId: people.read_one
+      tags:
+        - People
+      summary: Read one person
+      description: Read one person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id of the person to get
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read person from people data operation
+          schema:
+            type: object
+            properties:
+              person_id:
+                type: string
+                description: Id of the person
+              fname:
+                type: string
+                description: First name of the person
+              lname:
+                type: string
+                description: Last name of the person
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the person record
+              notes:
+                type: array
+                items:
+                  properties:
+                    person_id:
+                      type: integer
+                      description: Id of person this note is associated with
+                    note_id:
+                      type: integer
+                      description: Id of this note
+                    content:
+                      type: string
+                      description: content of this note
+                    timestamp:
+                      type: string
+                      description: Create/Update timestamp of this note
+
+    put:
+      operationId: people.update
+      tags:
+        - People
+      summary: Update a person
+      description: Update a person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id the person to update
+          type: integer
+          required: True
+        - name: person
+          in: body
+          schema:
+            type: object
+            properties:
+              fname:
+                type: string
+                description: First name of the person
+              lname:
+                type: string
+                description: Last name of the person
+      responses:
+        200:
+          description: Successfully updated person
+          schema:
+            properties:
+              person_id:
+                type: integer
+                description: Id of the person in the database
+              fname:
+                type: string
+                description: First name of the person
+              lname:
+                type: string
+                description: Last name of the person
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the person record
+
+    delete:
+      operationId: people.delete
+      tags:
+        - People
+      summary: Delete a person from the people list
+      description: Delete a person
+      parameters:
+        - name: person_id
+          in: path
+          type: integer
+          description: Id of the person to delete
+          required: true
+      responses:
+        200:
+          description: Successfully deleted a person
+
+  /notes:
+    get:
+      operationId: notes.read_all
+      tags:
+        - Investment Idea
+      summary: Read the entire set of Investment Ideas for all people, sorted by timestamp
+      description: Read the entire set of Investment Ideas for all people, sorted by timestamp
+      responses:
+        200:
+          description: Successfully read Investment Ideas for all people operation
+          schema:
+            type: array
+            items:
+              properties:
+                note_id:
+                  type: integer
+                  description: Id of the Investment Idea
+                content:
+                  type: string
+                  description: Content of the Investment Idea
+                timestamp:
+                  type: string
+                  description: Create/Update timestamp of the Investment Idea
+                person:
+                  type: object
+                  properties:
+                    person_id:
+                      type: integer
+                      description: Id of associated person
+                    fname:
+                      type: string
+                      description: Frist name of associated person
+                    lname:
+                      type: string
+                      description: Last name of associated person
+                    timestamp:
+                      type: string
+                      description: Create/Update timestamp of associated person
+
+
+  /people/{person_id}/notes:
+    post:
+      operationId: notes.create
+      tags:
+        - Investment Idea
+      summary: Create an Investment Idea associated with a person
+      description: Create an Investment Idea associated with a person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id of person associated with an Investment Idea
+          type: integer
+          required: True
+        - name: Investment Idea
+          in: body
+          description: Text content of the Investment Idea to create
+          required: True
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Text of the Investment Idea to create
+      responses:
+        201:
+          description: Successfully created an Investment Idea
+          schema:
+            properties:
+              person_id:
+                type: integer
+                description: Id of the person associated with the Investment Idea
+              note_id:
+                type: integer
+                description: Id of the created Investment Idea
+              content:
+                type: string
+                description: Text content of the Investment Idea
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the person record
+
+  /people/{person_id}/notes/{note_id}:
+    get:
+      operationId: notes.read_one
+      tags:
+        - Investment Idea
+      summary: Read a particular Investment Idea associated with a person
+      description: Read a particular Investment Idea associated with a person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id of person associated with Investment Idea
+          type: integer
+          required: True
+        - name: note_id
+          in: path
+          description: Id of Investment Idea
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully read Investment Idea for a person
+          schema:
+            type: object
+            properties:
+              note_id:
+                type: integer
+                description: Id of the Investment Idea
+              person_id:
+                type: integer
+                description: Id of the person an Investment Idea is associated with
+              content:
+                type: string
+                description: Text content of the Investment Idea
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the Investment Idea record
+
+    put:
+      operationId: notes.update
+      tags:
+        - Investment Idea
+      summary: Update an Investment Idea associated with a person
+      description: Update an Investment Idea associated with a person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id the person to update
+          type: integer
+          required: True
+        - name: note_id
+          in: path
+          description: Id of the note associated with a person
+          type: integer
+          required: True
+        - name: note
+          in: body
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Text content of the Investment Idea to be updated
+      responses:
+        200:
+          description: Successfully updated Investment Idea
+          schema:
+            properties:
+              note_id:
+                type: string
+                description: Id of the Investment Idea associated with a person
+              person_id:
+                type: integer
+                description: Id of the person in the database
+              content:
+                type: string
+                description: Text content of the updated Investment Idea
+              timestamp:
+                type: string
+                description: Creation/Update timestamp of the Investment Idea record
+
+    delete:
+      operationId: notes.delete
+      tags:
+        - Investment Idea
+      summary: Delete an Investment Idea associated with a person
+      description: Delete a note associated with a person
+      parameters:
+        - name: person_id
+          in: path
+          description: Id of person associated with an Investment Idea
+          type: integer
+          required: True
+        - name: note_id
+          in: path
+          description: Id of Investment Idea
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully deleted an Investment Idea
