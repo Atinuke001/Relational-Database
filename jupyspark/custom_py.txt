@@ -1,0 +1,10 @@
+nltk
+pyarrow=0.12.1
+fastparquet
+fastavro
+pyhive 
+xlwt 
+psycopg2 
+requests 
+xlrd 
+xlsxwriter
