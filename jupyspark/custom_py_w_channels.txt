@@ -1,1 +1,0 @@
--c spacy spacy=2.0.*
