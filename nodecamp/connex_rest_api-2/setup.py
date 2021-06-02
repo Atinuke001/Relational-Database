@@ -30,5 +30,5 @@ setup(
     'Jinja2==2.10', 'jsonschema==2.6.0', 'MarkupSafe==1.1.0', 'marshmallow==2.18.0',
     'marshmallow-sqlalchemy==0.15.0', 'openapi-spec-validator==0.2.4', 'pathlib==1.0.1',
     'PyYAML==4.2b4', 'requests==2.21.0', 'six==1.12.0', 'SQLAlchemy==1.2.17', 'swagger-ui-bundle==0.0.3',
-    'urllib3==1.24.1', 'Werkzeug==0.14.1'],
+    'urllib3==1.26.5', 'Werkzeug==0.14.1'],
 )
