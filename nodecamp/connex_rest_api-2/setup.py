@@ -24,7 +24,7 @@ setup(
 
     packages=find_packages(),
 
-    install_requires=['certifi==2018.11.29', 'chardet==3.0.4', 'Click==7.0',
+    install_requires=['certifi==2022.12.7', 'chardet==3.0.4', 'Click==7.0',
     'clickclick==1.2.2', 'connexion==2.2.0', 'Flask==1.0.2', 'flask-marshmallow==0.9.0',
     'Flask-SQLAlchemy==2.3.2', 'idna==2.8', 'inflection==0.3.1', 'itsdangerous==1.1.0',
     'Jinja2==2.10', 'jsonschema==2.6.0', 'MarkupSafe==1.1.0', 'marshmallow==2.18.0',
